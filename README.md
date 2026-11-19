@@ -538,7 +538,68 @@ cat: /tmp/x.txt: No such file or directory
 
 ## 14. Git 설정 및 GitHub/VSCode 연동
 
-<!-- GIT_SECTION -->
+원본: [`logs/12_git.log`](logs/12_git.log)
+
+### 14-1. Git 사용자 정보 / 기본 브랜치 설정
+```bash
+$ git config --global user.name "stnh34"
+$ git config --global user.email "358192135+stnh34@users.noreply.github.com"   # 개인 이메일 대신 GitHub noreply 주소
+$ git config --global init.defaultBranch main
+
+$ git config --list --show-origin | grep -v "credential"     # (발췌)
+file:C:/Users/user/.gitconfig	init.defaultbranch=main
+file:C:/Users/user/.gitconfig	core.autocrlf=true
+file:C:/Users/user/.gitconfig	user.name=stnh34
+file:C:/Users/user/.gitconfig	user.email=358192135+stnh34@users.noreply.github.com
+file:.git/config	core.repositoryformatversion=0
+file:.git/config	core.filemode=false
+file:.git/config	remote.origin.url=https://github.com/stnh34/codyssey-dev-workstation.git
+file:.git/config	remote.origin.fetch=+refs/heads/*:refs/remotes/origin/*
+file:.git/config	branch.main.remote=origin
+file:.git/config	branch.main.merge=refs/heads/main
+```
+
+### 14-2. GitHub 로그인 및 저장소 연동
+GitHub CLI 를 `winget install GitHub.cli` 로 설치한 뒤, **브라우저 OAuth(device code)** 방식으로 로그인했습니다. 비밀번호나 토큰을 터미널에 직접 입력하지 않으며, 토큰은 OS 키링에 저장됩니다.
+```bash
+$ gh auth login --hostname github.com --git-protocol https --web
+? Authenticate Git with your GitHub credentials? Yes
+! One-time code (****-****) copied to clipboard          # 브라우저에서 코드 입력 후 승인
+✓ Logged in as stnh34
+
+$ gh auth status
+github.com
+  ✓ Logged in to github.com account stnh34 (keyring)
+  - Active account: true
+  - Git operations protocol: https
+  - Token: gho_************************ (masked)
+  - Token scopes: 'gist', 'read:org', 'repo', 'workflow'
+
+$ git init && git add -A && git commit -m "Add dev workstation mission ..."
+$ gh repo create codyssey-dev-workstation --public --source . --remote origin --push
+https://github.com/stnh34/codyssey-dev-workstation
+To https://github.com/stnh34/codyssey-dev-workstation.git
+ * [new branch]      HEAD -> main
+branch 'main' set up to track 'origin/main'.
+
+$ git remote -v
+origin	https://github.com/stnh34/codyssey-dev-workstation.git (fetch)
+origin	https://github.com/stnh34/codyssey-dev-workstation.git (push)
+
+$ git branch -vv
+* main ed5bb45 [origin/main] Add dev workstation mission: Docker, Dockerfile, mounts, volume, compose, README
+
+$ gh repo view --json name,visibility,url,defaultBranchRef
+{"defaultBranchRef":{"name":"main"},"name":"codyssey-dev-workstation","url":"https://github.com/stnh34/codyssey-dev-workstation","visibility":"PUBLIC"}
+```
+
+### 14-3. 연동 증거 스크린샷
+
+**VSCode** — 계정 메뉴에 `stnh34 (GitHub)` 로그인 상태, 탐색기에 이 저장소(workstation) 폴더가 열린 화면
+![VSCode GitHub 로그인](docs/screenshots/vscode_github.png)
+
+**GitHub** — push 된 공개 저장소 (`main` 브랜치, 커밋 반영)
+![GitHub 저장소](docs/screenshots/github_repo.png)
 
 ## 15. 보너스: Docker Compose / 환경변수
 
