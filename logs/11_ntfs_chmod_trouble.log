@@ -1,0 +1,9 @@
+$ touch ntfs_perm.txt && ls -l ntfs_perm.txt
+-rw-r--r-- 1 user 197121 0 Nov 19 23:58 ntfs_perm.txt
+
+$ chmod 600 ntfs_perm.txt && ls -l ntfs_perm.txt
+-rw-r--r-- 1 user 197121 0 Nov 19 23:58 ntfs_perm.txt
+
+$ chmod 755 ntfs_perm.txt && ls -l ntfs_perm.txt
+-rw-r--r-- 1 user 197121 0 Nov 19 23:58 ntfs_perm.txt
+

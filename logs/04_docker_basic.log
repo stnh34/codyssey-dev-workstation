@@ -1,0 +1,153 @@
+$ docker run hello-world
+Unable to find image 'hello-world:latest' locally
+latest: Pulling from library/hello-world
+4f55086f7dd0: Pulling fs layer
+4f55086f7dd0: Download complete
+4f55086f7dd0: Pull complete
+Digest: sha256:1e4c05b897a751332ce85c7e9449da2d93514ea2dea6dbb0e2753c9e949b2bfa
+Status: Downloaded newer image for hello-world:latest
+
+Hello from Docker!
+This message shows that your installation appears to be working correctly.
+
+To generate this message, Docker took the following steps:
+ 1. The Docker client contacted the Docker daemon.
+ 2. The Docker daemon pulled the "hello-world" image from the Docker Hub.
+    (amd64)
+ 3. The Docker daemon created a new container from that image which runs the
+    executable that produces the output you are currently reading.
+ 4. The Docker daemon streamed that output to the Docker client, which sent it
+    to your terminal.
+
+To try something more ambitious, you can run an Ubuntu container with:
+ $ docker run -it ubuntu bash
+
+Share images, automate workflows, and more with a free Docker ID:
+ https://hub.docker.com/
+
+For more examples and ideas, visit:
+ https://docs.docker.com/get-started/
+
+
+$ docker pull ubuntu:24.04
+24.04: Pulling from library/ubuntu
+26538842dfbf: Pulling fs layer
+26538842dfbf: Verifying Checksum
+26538842dfbf: Download complete
+26538842dfbf: Pull complete
+Digest: sha256:73b999393d07f2bf65a40373778a44dc9a6d54ad7718d29247d8ff9413c4d6a8
+Status: Downloaded newer image for ubuntu:24.04
+docker.io/library/ubuntu:24.04
+
+$ docker pull nginx:alpine
+alpine: Pulling from library/nginx
+881fc932939e: Pulling fs layer
+77a3bfea78f5: Pulling fs layer
+04c3905a997c: Pulling fs layer
+7cb374baf968: Pulling fs layer
+4c8c172c6586: Pulling fs layer
+1dc588c89da1: Pulling fs layer
+61d8f4c85a74: Pulling fs layer
+c4f3d97811f6: Pulling fs layer
+4c8c172c6586: Waiting
+1dc588c89da1: Waiting
+61d8f4c85a74: Waiting
+c4f3d97811f6: Waiting
+7cb374baf968: Waiting
+881fc932939e: Verifying Checksum
+881fc932939e: Download complete
+04c3905a997c: Verifying Checksum
+04c3905a997c: Download complete
+77a3bfea78f5: Verifying Checksum
+77a3bfea78f5: Download complete
+881fc932939e: Pull complete
+7cb374baf968: Verifying Checksum
+7cb374baf968: Download complete
+4c8c172c6586: Download complete
+1dc588c89da1: Verifying Checksum
+1dc588c89da1: Download complete
+77a3bfea78f5: Pull complete
+04c3905a997c: Pull complete
+7cb374baf968: Pull complete
+61d8f4c85a74: Verifying Checksum
+61d8f4c85a74: Download complete
+4c8c172c6586: Pull complete
+1dc588c89da1: Pull complete
+61d8f4c85a74: Pull complete
+c4f3d97811f6: Verifying Checksum
+c4f3d97811f6: Download complete
+c4f3d97811f6: Pull complete
+Digest: sha256:0563c36f94a6d3ec3584161b77859f740f7e20b4853f52c796a864ce6908e8ea
+Status: Downloaded newer image for nginx:alpine
+docker.io/library/nginx:alpine
+
+$ docker images
+IMAGE                ID             DISK USAGE   CONTENT SIZE   EXTRA
+hello-world:latest   e2ac70e7319a       10.1kB             0B   U    
+nginx:alpine         62d1c420c34a         63MB             0B        
+ubuntu:24.04         7da97f743f39       78.2MB             0B        
+
+$ docker run --rm ubuntu:24.04 bash -c "ls / && echo hello-from-ubuntu && cat /etc/os-release | head -2"
+bin
+boot
+dev
+etc
+home
+lib
+lib64
+media
+mnt
+opt
+proc
+root
+run
+sbin
+srv
+sys
+tmp
+usr
+var
+hello-from-ubuntu
+PRETTY_NAME="Ubuntu 24.04.5 LTS"
+NAME="Ubuntu"
+
+$ docker run -dit --name ubuntu-test ubuntu:24.04 bash
+60d1fb8b971bfb2c73fb4d5c9b0cc94dfd1e00065c97f8e6f8ffa15bb24216ad
+
+$ docker ps
+CONTAINER ID   IMAGE          COMMAND   CREATED        STATUS                  PORTS     NAMES
+60d1fb8b971b   ubuntu:24.04   "bash"    1 second ago   Up Less than a second             ubuntu-test
+
+$ docker exec ubuntu-test bash -c "echo via-exec > /tmp/note.txt; ls /tmp; cat /tmp/note.txt"
+note.txt
+via-exec
+
+$ docker exec ubuntu-test ps aux
+USER         PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
+root           1  2.2  0.0   4600  4004 pts/0    Ss+  14:52   0:00 bash
+root          17 50.0  0.0   7904  4152 ?        Rs   14:52   0:00 ps aux
+
+$ docker stop ubuntu-test
+ubuntu-test
+
+$ docker ps
+CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS    PORTS     NAMES
+
+$ docker ps -a
+CONTAINER ID   IMAGE          COMMAND    CREATED          STATUS                                PORTS     NAMES
+60d1fb8b971b   ubuntu:24.04   "bash"     6 seconds ago    Exited (137) Less than a second ago             ubuntu-test
+dc03338c1c81   hello-world    "/hello"   19 seconds ago   Exited (0) 19 seconds ago                       eager_wing
+
+$ docker start ubuntu-test
+ubuntu-test
+
+$ docker exec ubuntu-test cat /tmp/note.txt
+via-exec
+
+$ docker rm -f ubuntu-test
+ubuntu-test
+
+$ docker ps -a
+CONTAINER ID   IMAGE         COMMAND    CREATED          STATUS                      PORTS     NAMES
+dc03338c1c81   hello-world   "/hello"   21 seconds ago   Exited (0) 20 seconds ago             eager_wing
+

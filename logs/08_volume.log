@@ -1,0 +1,61 @@
+$ docker volume create mydata
+mydata
+
+$ docker volume ls
+DRIVER    VOLUME NAME
+local     mydata
+
+$ docker volume inspect mydata
+[
+    {
+        "CreatedAt": "2026-11-19T14:57:07Z",
+        "Driver": "local",
+        "Labels": null,
+        "Mountpoint": "/var/lib/docker/volumes/mydata/_data",
+        "Name": "mydata",
+        "Options": null,
+        "Scope": "local"
+    }
+]
+
+$ docker run -d --name vol-test -v mydata:/data ubuntu:24.04 sleep infinity
+20cfc1e5bf02a109e1ebb0b841d279fcf6eab034da78e0ee73c46ef22a9c36b3
+
+$ docker exec vol-test bash -c "echo persisted-at-$(date +%H:%M:%S) > /data/hello.txt && cat /data/hello.txt"
+persisted-at-23:57:08
+
+$ docker rm -f vol-test
+vol-test
+
+$ docker ps -a --filter name=vol-test
+CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS    PORTS     NAMES
+
+# 컨테이너는 삭제됐지만 볼륨은 남아 있음
+$ docker volume ls
+DRIVER    VOLUME NAME
+local     mydata
+
+$ docker run -d --name vol-test2 -v mydata:/data ubuntu:24.04 sleep infinity
+e221606737937130e596c1ead4fd368211d11923c317d9308fa3404ccedaca32
+
+$ docker exec vol-test2 bash -c "ls -l /data && cat /data/hello.txt"
+total 4
+-rw-r--r-- 1 root root 22 Nov 19 14:57 hello.txt
+persisted-at-23:57:08
+
+# 비교: 볼륨 없이 컨테이너 내부에만 쓴 데이터는 삭제와 함께 사라짐
+$ docker run -d --name novol-test ubuntu:24.04 sleep infinity
+ea2ebe92a725aa6f68e931ea3f43c1bda398b3f37a5cade6124d05f76c6233da
+
+$ docker exec novol-test bash -c "echo temp > /tmp/x.txt && cat /tmp/x.txt"
+temp
+
+$ docker rm -f novol-test
+novol-test
+
+$ docker run --rm ubuntu:24.04 bash -c "cat /tmp/x.txt"
+cat: /tmp/x.txt: No such file or directory
+
+$ docker rm -f vol-test2
+vol-test2
+

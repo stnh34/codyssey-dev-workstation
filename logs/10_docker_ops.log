@@ -1,0 +1,52 @@
+$ docker images
+IMAGE                ID             DISK USAGE   CONTENT SIZE   EXTRA
+busybox:1.37         30ecbe150909       4.42MB             0B        
+hello-world:latest   e2ac70e7319a       10.1kB             0B   U    
+my-web:1.0           2d0ecd22dcbc         63MB             0B   U    
+my-web:compose       2beb40b25297         63MB             0B        
+nginx:alpine         62d1c420c34a         63MB             0B        
+ubuntu:24.04         7da97f743f39       78.2MB             0B        
+
+$ docker ps
+CONTAINER ID   IMAGE        COMMAND                   CREATED              STATUS                        PORTS                                     NAMES
+d8ac37d263b8   my-web:1.0   "/docker-entrypoint.…"   About a minute ago   Up About a minute (healthy)   0.0.0.0:8082->80/tcp, [::]:8082->80/tcp   bind-test
+5c6c19ec9bad   my-web:1.0   "/docker-entrypoint.…"   5 minutes ago        Up 5 minutes (healthy)        0.0.0.0:8081->80/tcp, [::]:8081->80/tcp   my-web-8081
+40ce766eaf03   my-web:1.0   "/docker-entrypoint.…"   5 minutes ago        Up 5 minutes (healthy)        0.0.0.0:8080->80/tcp, [::]:8080->80/tcp   my-web-8080
+
+$ docker ps -a
+CONTAINER ID   IMAGE         COMMAND                   CREATED              STATUS                        PORTS                                     NAMES
+d8ac37d263b8   my-web:1.0    "/docker-entrypoint.…"   About a minute ago   Up About a minute (healthy)   0.0.0.0:8082->80/tcp, [::]:8082->80/tcp   bind-test
+5c6c19ec9bad   my-web:1.0    "/docker-entrypoint.…"   5 minutes ago        Up 5 minutes (healthy)        0.0.0.0:8081->80/tcp, [::]:8081->80/tcp   my-web-8081
+40ce766eaf03   my-web:1.0    "/docker-entrypoint.…"   5 minutes ago        Up 5 minutes (healthy)        0.0.0.0:8080->80/tcp, [::]:8080->80/tcp   my-web-8080
+dc03338c1c81   hello-world   "/hello"                  6 minutes ago        Exited (0) 6 minutes ago                                                eager_wing
+
+$ docker stats --no-stream --format "table {{.Name}}\t{{.CPUPerc}}\t{{.MemUsage}}\t{{.NetIO}}"
+NAME          CPU %     MEM USAGE / LIMIT     NET I/O
+bind-test     0.00%     11.82MiB / 11.68GiB   2.26kB / 1.47kB
+my-web-8081   2.30%     12.89MiB / 11.68GiB   6.84kB / 5.92kB
+my-web-8080   0.00%     12.23MiB / 11.68GiB   7.75kB / 6.48kB
+
+$ docker logs --tail 3 bind-test
+2026/11/19 14:56:56 [notice] 1#1: start worker process 40
+172.17.0.1 - - [19/Nov/2026:14:56:58 +0000] "GET / HTTP/1.1" 200 29 "-" "curl/8.23.0" "-"
+172.17.0.1 - - [19/Nov/2026:14:56:58 +0000] "GET / HTTP/1.1" 200 53 "-" "curl/8.23.0" "-"
+
+$ docker stop my-web-8081
+my-web-8081
+
+$ docker ps -a --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
+NAMES         STATUS                              PORTS
+bind-test     Up About a minute (healthy)         0.0.0.0:8082->80/tcp, [::]:8082->80/tcp
+my-web-8081   Exited (0) Less than a second ago   
+my-web-8080   Up 5 minutes (healthy)              0.0.0.0:8080->80/tcp, [::]:8080->80/tcp
+eager_wing    Exited (0) 6 minutes ago            
+
+$ docker start my-web-8081
+my-web-8081
+
+$ docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
+NAMES         STATUS                                     PORTS
+bind-test     Up About a minute (healthy)                0.0.0.0:8082->80/tcp, [::]:8082->80/tcp
+my-web-8081   Up Less than a second (health: starting)   0.0.0.0:8081->80/tcp, [::]:8081->80/tcp
+my-web-8080   Up 5 minutes (healthy)                     0.0.0.0:8080->80/tcp, [::]:8080->80/tcp
+

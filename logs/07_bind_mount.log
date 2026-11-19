@@ -1,0 +1,23 @@
+$ cat bind-site/index.html
+<h1>Bind mount - BEFORE</h1>
+
+$ docker run -d --name bind-test -p 8082:80 -v "$(pwd -W)/bind-site:/usr/share/nginx/html" my-web:1.0
+d8ac37d263b8ead8f9b1961d41a5cbe5a5c7b9106cc22ba6ef9eb740620d4a23
+
+$ curl -s http://localhost:8082
+<h1>Bind mount - BEFORE</h1>
+
+$ echo '<h1>Bind mount - AFTER (호스트에서 수정)</h1>' > bind-site/index.html
+
+$ cat bind-site/index.html
+<h1>Bind mount - AFTER (호스트에서 수정)</h1>
+
+$ curl -s http://localhost:8082
+<h1>Bind mount - AFTER (호스트에서 수정)</h1>
+
+$ docker exec bind-test cat /usr/share/nginx/html/index.html
+<h1>Bind mount - AFTER (호스트에서 수정)</h1>
+
+$ docker inspect --format "{{range .Mounts}}{{.Type}} {{.Source}} -> {{.Destination}}{{end}}" bind-test
+bind C:/Users/user/Desktop/codissey/workstation/bind-site -> /usr/share/nginx/html
+

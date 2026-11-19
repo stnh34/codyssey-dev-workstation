@@ -1,0 +1,196 @@
+$ cat .env
+WEB_PORT=8090
+APP_ENV=prod
+
+$ docker compose config
+name: compose
+services:
+  checker:
+    command:
+      - sh
+      - -c
+      - while true; do echo "[checker] web/health -> $$(wget -qO- http://web/health)";
+        sleep 5; done
+    image: busybox:1.37
+    networks:
+      default: null
+    depends_on:
+      web:
+        condition: service_started
+        required: true
+  web:
+    environment:
+      APP_ENV: prod
+    image: my-web:compose
+    networks:
+      default: null
+    volumes:
+      - type: volume
+        source: webdata
+        target: /data
+        volume: {}
+    build:
+      context: C:\Users\user\Desktop\codissey\workstation\app
+      dockerfile: Dockerfile
+    ports:
+      - mode: ingress
+        target: 80
+        published: "8090"
+        protocol: tcp
+networks:
+  default:
+    name: compose_default
+volumes:
+  webdata:
+    name: compose_webdata
+
+$ docker compose up -d --build
+ Image busybox:1.37 Pulling 
+ 68fe9bff2ad4 Pulling fs layer 0B
+ 68fe9bff2ad4 Downloading 32.12kB
+ 68fe9bff2ad4 Downloading 1.965MB
+ 68fe9bff2ad4 Verifying Checksum 0B
+ 68fe9bff2ad4 Download complete 0B
+ 68fe9bff2ad4 Extracting 32.77kB
+ 68fe9bff2ad4 Extracting 852kB
+ 68fe9bff2ad4 Extracting 2.212MB
+ 68fe9bff2ad4 Pull complete 0B
+ Image busybox:1.37 Pulled 
+ Image my-web:compose Building 
+#1 [internal] load local bake definitions
+#1 reading from stdin 548B 0.0s done
+#1 DONE 0.0s
+
+#2 [internal] load build definition from Dockerfile
+#2 transferring dockerfile: 870B done
+#2 DONE 0.0s
+
+#3 [internal] load metadata for docker.io/library/nginx:alpine
+#3 DONE 0.0s
+
+#4 [internal] load .dockerignore
+#4 transferring context: 45B done
+#4 DONE 0.0s
+
+#5 [1/3] FROM docker.io/library/nginx:alpine
+#5 DONE 0.0s
+
+#6 [internal] load build context
+#6 transferring context: 124B done
+#6 DONE 0.0s
+
+#7 [2/3] COPY nginx/default.conf /etc/nginx/conf.d/default.conf
+#7 CACHED
+
+#8 [3/3] COPY site/ /usr/share/nginx/html/
+#8 CACHED
+
+#9 exporting to image
+#9 exporting layers done
+#9 writing image sha256:2beb40b2529734b8430a85633596cf40f2c9400f95795712e5e5e8ce4955af4e done
+#9 naming to docker.io/library/my-web:compose done
+#9 DONE 0.0s
+
+#10 resolving provenance for metadata file
+#10 DONE 0.0s
+ Image my-web:compose Built 
+ Network compose_default Creating 
+ Volume compose_webdata Creating 
+ Network compose_default Creating 
+ Volume compose_webdata Creating 
+ Volume compose_webdata Created 
+ Volume compose_webdata Created 
+ Network compose_default Created 
+ Network compose_default Created 
+ Container compose-web-1 Creating 
+ Container compose-web-1 Created 
+ Container compose-checker-1 Creating 
+ Container compose-checker-1 Created 
+ Container compose-web-1 Starting 
+ Container compose-web-1 Started 
+ Container compose-checker-1 Starting 
+ Container compose-checker-1 Started 
+
+$ docker compose ps
+NAME                IMAGE            COMMAND                   SERVICE   CREATED         STATUS                            PORTS
+compose-checker-1   busybox:1.37     "sh -c 'while true; …"   checker   8 seconds ago   Up 8 seconds                      
+compose-web-1       my-web:compose   "/docker-entrypoint.…"   web       9 seconds ago   Up 8 seconds (health: starting)   0.0.0.0:8090->80/tcp, [::]:8090->80/tcp
+
+$ curl -si http://localhost:8090/health
+HTTP/1.1 200 OK
+Server: nginx/1.31.9
+Date: Thu, 19 Nov 2026 14:57:50 GMT
+Content-Type: text/plain
+Content-Length: 3
+Connection: keep-alive
+X-Served-By: codyssey-custom-nginx
+
+ok
+
+$ docker compose exec web printenv APP_ENV
+prod
+
+$ docker compose exec checker wget -qO- http://web/health
+ok
+
+$ docker compose exec checker nslookup web
+Server:		127.0.0.11
+Address:	127.0.0.11:53
+
+Non-authoritative answer:
+Name:	web
+Address: 172.18.0.2
+
+Non-authoritative answer:
+
+
+$ docker compose logs checker
+checker-1  | [checker] web/health -> ok
+checker-1  | [checker] web/health -> ok
+checker-1  | [checker] web/health -> ok
+
+$ docker compose logs --tail 3 web
+web-1  | 2026/11/19 14:57:41 [notice] 1#1: start worker process 38
+web-1  | 2026/11/19 14:57:41 [notice] 1#1: start worker process 39
+web-1  | 2026/11/19 14:57:41 [notice] 1#1: start worker process 40
+
+$ docker network ls
+NETWORK ID     NAME              DRIVER    SCOPE
+e7b495ce92cc   bridge            bridge    local
+38fd2f37b6e3   compose_default   bridge    local
+fe8d77abfacc   host              host      local
+a1bdb8e8dd44   none              null      local
+
+# 환경변수로 포트/모드를 바꿔서 재기동
+$ WEB_PORT=8095 APP_ENV=staging docker compose up -d
+ Container compose-checker-1 Running 
+ Container compose-web-1 Recreate 
+ Container compose-web-1 Recreated 
+ Container compose-web-1 Starting 
+ Container compose-web-1 Started 
+
+$ docker compose ps web
+NAME            IMAGE            COMMAND                   SERVICE   CREATED         STATUS                            PORTS
+compose-web-1   my-web:compose   "/docker-entrypoint.…"   web       5 seconds ago   Up 4 seconds (health: starting)   0.0.0.0:8095->80/tcp, [::]:8095->80/tcp
+
+$ curl -s http://localhost:8095/health
+ok
+
+$ docker compose exec web printenv APP_ENV
+staging
+
+$ docker compose down
+ Container compose-checker-1 Stopping 
+ Container compose-checker-1 Stopped 
+ Container compose-checker-1 Removing 
+ Container compose-checker-1 Removed 
+ Container compose-web-1 Stopping 
+ Container compose-web-1 Stopped 
+ Container compose-web-1 Removing 
+ Container compose-web-1 Removed 
+ Network compose_default Removing 
+ Network compose_default Removed 
+
+$ docker compose ps -a
+NAME      IMAGE     COMMAND   SERVICE   CREATED   STATUS    PORTS
+

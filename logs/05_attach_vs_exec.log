@@ -1,0 +1,19 @@
+# [exec] 새 프로세스로 들어가서 exit → 컨테이너는 계속 실행됨
+$ docker run -di --name attach-test ubuntu:24.04 bash
+4bbfc7cf4e674a19b132e8595362560a51137d8e566b8e7d42ae06890ece1d01
+
+$ docker exec attach-test bash -c "echo inside-exec; exit"
+inside-exec
+
+$ docker ps --filter name=attach-test --format "{{.Names}} {{.Status}}"
+attach-test Up Less than a second
+
+# [attach] PID 1(bash)의 stdin에 붙어서 exit → 메인 프로세스 종료 = 컨테이너 종료
+$ echo "echo inside-attach; exit" | docker attach attach-test
+
+$ docker ps -a --filter name=attach-test --format "{{.Names}} {{.Status}}"
+attach-test Exited (0) Less than a second ago
+
+$ docker rm attach-test
+attach-test
+

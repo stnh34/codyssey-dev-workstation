@@ -1,0 +1,35 @@
+﻿$ touch perm_file.txt && mkdir -p perm_dir
+
+$ ls -l perm_file.txt && ls -ld perm_dir
+-rw-r--r-- 1 root root 0 Nov 19 23:51 perm_file.txt
+drwxr-xr-x 2 root root 4096 Nov 19 23:51 perm_dir
+
+$ stat -c "%A %a %n" perm_file.txt perm_dir
+-rw-r--r-- 644 perm_file.txt
+drwxr-xr-x 755 perm_dir
+
+$ chmod 755 perm_file.txt
+
+$ chmod 700 perm_dir
+
+$ stat -c "%A %a %n" perm_file.txt perm_dir
+-rwxr-xr-x 755 perm_file.txt
+drwx------ 700 perm_dir
+
+$ chmod u=rw,g=r,o=r perm_file.txt
+
+$ chmod 755 perm_dir
+
+$ stat -c "%A %a %n" perm_file.txt perm_dir
+-rw-r--r-- 644 perm_file.txt
+drwxr-xr-x 755 perm_dir
+
+$ chmod 600 perm_file.txt && ls -l perm_file.txt
+-rw------- 1 root root 0 Nov 19 23:51 perm_file.txt
+
+$ chmod 644 perm_file.txt && ls -l perm_file.txt
+-rw-r--r-- 1 root root 0 Nov 19 23:51 perm_file.txt
+
+$ umask
+0022
+

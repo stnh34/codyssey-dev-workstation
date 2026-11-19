@@ -1,0 +1,87 @@
+﻿$ pwd
+/root
+
+$ mkdir -p ~/codyssey/practice
+
+$ cd ~/codyssey/practice
+
+$ pwd
+/root/codyssey/practice
+
+$ touch empty.txt
+
+$ echo "hello codyssey" > hello.txt
+
+$ mkdir -p dir_a/sub
+
+$ ls -la
+total 16
+drwxr-xr-x 3 root root 4096 Nov 19 23:51 .
+drwxr-xr-x 3 root root 4096 Nov 19 23:51 ..
+drwxr-xr-x 3 root root 4096 Nov 19 23:51 dir_a
+-rw-r--r-- 1 root root    0 Nov 19 23:51 empty.txt
+-rw-r--r-- 1 root root   15 Nov 19 23:51 hello.txt
+
+$ cat hello.txt
+hello codyssey
+
+$ cp hello.txt dir_a/hello_copy.txt
+
+$ mv dir_a/hello_copy.txt dir_a/sub/renamed.txt
+
+$ ls -laR dir_a
+dir_a:
+total 12
+drwxr-xr-x 3 root root 4096 Nov 19 23:51 .
+drwxr-xr-x 3 root root 4096 Nov 19 23:51 ..
+drwxr-xr-x 2 root root 4096 Nov 19 23:51 sub
+
+dir_a/sub:
+total 12
+drwxr-xr-x 2 root root 4096 Nov 19 23:51 .
+drwxr-xr-x 3 root root 4096 Nov 19 23:51 ..
+-rw-r--r-- 1 root root   15 Nov 19 23:51 renamed.txt
+
+$ cd dir_a/sub && pwd && cd ../..
+/root/codyssey/practice/dir_a/sub
+
+$ cat ./dir_a/sub/renamed.txt
+hello codyssey
+
+$ cat ~/codyssey/practice/dir_a/sub/renamed.txt
+hello codyssey
+
+$ echo ".secret" > .hidden_config
+
+$ ls -a
+.
+..
+.hidden_config
+dir_a
+empty.txt
+hello.txt
+
+$ ls -la
+total 20
+drwxr-xr-x 3 root root 4096 Nov 19 23:51 .
+drwxr-xr-x 3 root root 4096 Nov 19 23:51 ..
+-rw-r--r-- 1 root root    8 Nov 19 23:51 .hidden_config
+drwxr-xr-x 3 root root 4096 Nov 19 23:51 dir_a
+-rw-r--r-- 1 root root    0 Nov 19 23:51 empty.txt
+-rw-r--r-- 1 root root   15 Nov 19 23:51 hello.txt
+
+$ wc -c empty.txt
+0 empty.txt
+
+$ rm dir_a/sub/renamed.txt
+
+$ rm -r dir_a
+
+$ ls -la
+total 16
+drwxr-xr-x 2 root root 4096 Nov 19 23:51 .
+drwxr-xr-x 3 root root 4096 Nov 19 23:51 ..
+-rw-r--r-- 1 root root    8 Nov 19 23:51 .hidden_config
+-rw-r--r-- 1 root root    0 Nov 19 23:51 empty.txt
+-rw-r--r-- 1 root root   15 Nov 19 23:51 hello.txt
+
