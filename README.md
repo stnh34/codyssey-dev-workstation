@@ -89,7 +89,8 @@
 │   ├── scripts_terminal.sh    # 터미널 조작 실습 스크립트
 │   ├── scripts_permission.sh  # 권한 실습 스크립트
 │   ├── compose_demo.sh        # Compose 실습 스크립트
-│   └── capture_browser.ps1    # 브라우저(주소창 포함) 캡처 보조 스크립트
+│   ├── capture_browser.ps1    # 브라우저(주소창 포함) 캡처 보조 스크립트
+│   └── capture_window.ps1     # 열린 창(VSCode 등) 캡처 보조 스크립트
 ├── logs/                      # 명령 + 출력 원본 로그
 └── docs/screenshots/          # 접속/연동 증거 스크린샷
 ```
